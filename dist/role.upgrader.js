@@ -18,7 +18,7 @@ const roleUpgrader = {
                     return structure.structureType === STRUCTURE_CONTAINER
                 }
             });
-            if (targets.length > 0 && targets[0].store.getCapacity() > 0) {
+            if (targets.length > 0 && targets[0].store[RESOURCE_ENERGY] > 0) {
                 if(creep.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], {visualizePathStyle: {stroke: "#ff0099"}});
                     creep.say("从container中获取能量");
