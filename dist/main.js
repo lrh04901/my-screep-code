@@ -19,7 +19,7 @@ module.exports.loop = () => {
 
     if (harvester.length < 3) {
         let newName = "Harvester" + Game.time;
-        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, MOVE], newName, {
+        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
             memory: {
                 role: 'harvester'
             }
@@ -28,7 +28,7 @@ module.exports.loop = () => {
 
     if (harvester.length >= 3 && upgrader.length < 2) {
         let newName = "Upgrader" + Game.time;
-        Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE], newName, {
+        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
             memory: {
                 role: 'upgrader'
             }
@@ -37,7 +37,7 @@ module.exports.loop = () => {
 
     if (controller_level >= 2 && builder.length < 2) {
         let newName = "Builder" + Game.time;
-        Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE], newName, {
+        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE], newName, {
             memory: {
                 role: 'builder'
             }
@@ -46,7 +46,7 @@ module.exports.loop = () => {
 
     if (harvester.length >= 3 && upgrader.length >= 2 && builder.length >= 2 && transfer.length < 1) {
         let newName = "Transfer" + Game.time;
-        Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE], newName, {
+        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE], newName, {
             memory: {
                 role: 'transfer'
             }
@@ -63,14 +63,21 @@ module.exports.loop = () => {
 
     for (let name in Game.creeps) {
         const creep = Game.creeps[name];
-        if (creep.memory.role === "harvester") {
-            roleHarvester.run(creep)
-        } else if (creep.memory.role === "upgrader") {
-            roleUpgrader.run(creep)
-        } else if (creep.memory.role === "builder") {
-            roleBuilder.run(creep)
-        } else if (creep.memory.role === "transfer") {
-            roleTransfer.run(creep)
+        switch (creep.memory.role) {
+            case "harvester":
+                roleHarvester.run(creep);
+                break;
+            case "upgrader":
+                roleUpgrader.run(creep);
+                break;
+            case "builder":
+                roleBuilder.run(creep);
+                break;
+            case "transfer":
+                roleTransfer.run(creep);
+                break;
+            default:
+                console.log("程序出错");
         }
     }
 }

@@ -37,7 +37,7 @@ const roleHarvester = {
         } else {
             if (room.energyAvailable === room.energyCapacityAvailable) {
                 const targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: structure => structure.hits < structure.hitsMax
+                    filter: structure => structure.hits < structure.hitsMax && structure.structureType === STRUCTURE_ROAD
                 });
 
                 if (targets.length > 0) {
