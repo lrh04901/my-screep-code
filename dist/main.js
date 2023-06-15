@@ -19,7 +19,7 @@ module.exports.loop = () => {
 
     if (harvester.length < 3) {
         let newName = "Harvester" + Game.time;
-        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
+        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
             memory: {
                 role: 'harvester'
             }
@@ -37,7 +37,7 @@ module.exports.loop = () => {
 
     if (controller_level >= 2 && builder.length < 2) {
         let newName = "Builder" + Game.time;
-        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE], newName, {
+        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE], newName, {
             memory: {
                 role: 'builder'
             }
