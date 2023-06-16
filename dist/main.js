@@ -28,16 +28,16 @@ module.exports.loop = () => {
 
     if (harvester.length >= 3 && upgrader.length < 2) {
         let newName = "Upgrader" + Game.time;
-        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
+        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
             memory: {
                 role: 'upgrader'
             }
         });
     }
 
-    if (controller_level >= 2 && builder.length < 2) {
+    if (controller_level >= 2 && harvester.length >= 3 && builder.length < 2) {
         let newName = "Builder" + Game.time;
-        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE], newName, {
+        Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
             memory: {
                 role: 'builder'
             }
