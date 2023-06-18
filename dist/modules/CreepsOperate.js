@@ -1,4 +1,4 @@
-export class CreepsOperate {
+class CreepsOperate {
   constructor() {
     this.creeps = Game.creeps;
     this.sources = this.creeps.room.find(FIND_SOURCES);
@@ -46,3 +46,5 @@ export class CreepsOperate {
     }
   }
 }
+
+module.export = CreepsOperate
