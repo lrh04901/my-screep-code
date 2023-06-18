@@ -3,10 +3,15 @@ const roleHarvester = require("role.harvester");
 const roleUpgrader = require("role.upgrader");
 const roleBuilder = require("role.builder");
 const roleTransfer = require("role.transfer");
+const towerExtension = require("tower")
 
 
 module.exports.loop = () => {
   showRoomInfo.showRoomInfo()
+  const roleTower = new towerExtension();
+  if (roleTower.towers.length > 0) {
+    roleTower.work();
+  }
 
   for (let name in Memory.creeps) {
     if (!Game.creeps[name]) {
@@ -32,7 +37,7 @@ module.exports.loop = () => {
 
   if (harvester.length >= 3 && upgrader.length < 3) {
     let newName = "Upgrader" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
+    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
       memory: {
         role: 'upgrader'
       }
