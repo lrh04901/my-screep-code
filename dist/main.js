@@ -26,7 +26,7 @@ module.exports.loop = () => {
   let transfer = _.filter(Game.creeps, (creep) => creep.memory.role === "transfer");
   let controller_level = Game.spawns["Spawn1"].room.controller.level
 
-  if (harvester.length < 3) {
+  if (harvester.length < 2) {
     let newName = "Harvester" + Game.time;
     Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
       memory: {
@@ -35,27 +35,27 @@ module.exports.loop = () => {
     });
   }
 
-  if (harvester.length >= 3 && upgrader.length < 3) {
+  if (harvester.length >= 2 && upgrader.length < 3) {
     let newName = "Upgrader" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
+    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
       memory: {
         role: 'upgrader'
       }
     });
   }
 
-  if (controller_level >= 2 && harvester.length >= 3 && builder.length < 2) {
+  if (controller_level >= 2 && harvester.length >= 2 && builder.length < 2) {
     let newName = "Builder" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
+    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
       memory: {
         role: 'builder'
       }
     });
   }
 
-  if (harvester.length >= 3 && upgrader.length >= 2 && builder.length >= 2 && transfer.length < 1) {
+  if (harvester.length >= 2 && upgrader.length >= 3 && builder.length >= 2 && transfer.length < 1) {
     let newName = "Transfer" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
+    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
       memory: {
         role: 'transfer'
       }
