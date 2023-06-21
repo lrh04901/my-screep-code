@@ -13,19 +13,20 @@ class TowerExtension extends StructureTower {
     for (let tower of this.towers) {
       let target = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
       let basicStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: (s) => s.hits < s.hitsMax && (s.structureType === STRUCTURE_ROAD || s.structureType === STRUCTURE_CONTAINER)
+        filter: (s) => s.hits < s.hitsMax && (s.structureType === STRUCTURE_ROAD)
       });
       let defenseStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
         filter: (s) => s.hits < s.hitsMax && (s.structureType === STRUCTURE_WALL || s.structureType === STRUCTURE_RAMPART)
       });
-
-      if (target !== undefined) {
-        this.defenseRoom(tower, target)
-      } else {
-        if (basicStructure !== undefined) {
-          this.fixStructures(tower, basicStructure);
+      if (tower.store[RESOURCE_ENERGY] > 300) {
+        if (target !== null) {
+          this.defenseRoom(tower, target)
         } else {
-          this.fixStructures(tower, defenseStructure);
+          if (basicStructure !== null) {
+            this.fixStructures(tower, basicStructure);
+          } else {
+            this.fixStructures(tower, defenseStructure);
+          }
         }
       }
     }

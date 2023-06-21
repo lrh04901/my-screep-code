@@ -58,7 +58,7 @@ const info = {
             layout: {
               x: 0,
               y: 3,
-              content: `当前正在建造的建筑为${constructionSite.structureType}, ${constructionSite.progress}/${constructionSite.progressTotal}`
+              content: `当前正在建造的建筑为${constructionSite !== undefined ? constructionSite.structureType : ""}, ${constructionSite !== undefined ? constructionSite.progress : ""}/${constructionSite !== undefined ? constructionSite.progressTotal : ""}`
             }
           }
         ]
