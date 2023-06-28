@@ -1,10 +1,9 @@
 const showRoomInfo = require("InfoBoard")
-const roleHarvester = require("role.harvester");
 const roleUpgrader = require("role.upgrader");
 const roleBuilder = require("role.builder");
 const roleTransfer = require("role.transfer");
-const roleCarrier = require("role.carrier");
 const towerExtension = require("tower")
+const creepsExtension = require("CreepsOperate");
 
 
 module.exports.loop = () => {
@@ -14,63 +13,46 @@ module.exports.loop = () => {
     roleTower.work();
   }
 
-  for (let name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-      delete Memory.creeps[name];
-      console.log("删除无用的creep内存", name);
-    }
-  }
+  const roleCreeps = new creepsExtension();
 
-  let harvester = _.filter(Game.creeps, (creep) => creep.memory.role === "harvester");
-  let upgrader = _.filter(Game.creeps, (creep) => creep.memory.role === "upgrader");
-  let builder = _.filter(Game.creeps, (creep) => creep.memory.role === "builder");
-  let transfer = _.filter(Game.creeps, (creep) => creep.memory.role === "transfer");
-  let carrier = _.filter(Game.creeps, (creep) => creep.memory.role === "carrier");
+  roleCreeps.deleteCreep(3);
+
+  let harvester = roleCreeps.filterCreepType("harvester");
+  let upgrader = roleCreeps.filterCreepType("upgrader");
+  let builder = roleCreeps.filterCreepType("builder");
+  let transfer = roleCreeps.filterCreepType("transfer");
+  let carrier = roleCreeps.filterCreepType("carrier");
+  let repairer = roleCreeps.filterCreepType("repairer");
   let controller_level = Game.spawns["Spawn1"].room.controller.level
 
-  if (harvester.length < 3) {
+  if (harvester.length < 1) {
     let newName = "Harvester" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE], newName, {
-      memory: {
-        role: 'harvester'
-      }
-    });
+    roleCreeps.createCreeps([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE], newName, 'harvester');
   }
 
-  if (harvester.length >= 3 && upgrader.length < 2) {
+  if (harvester.length >= 1 && repairer.length < 2) {
+    let newName = "Repairer" + Game.time;
+    roleCreeps.createCreeps([WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, 'repairer');
+  }
+
+  if (harvester.length >= 1 && repairer.length >= 2 && upgrader.length < 1) {
     let newName = "Upgrader" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, {
-      memory: {
-        role: 'upgrader'
-      }
-    });
+    roleCreeps.createCreeps([WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, 'upgrader');
   }
 
-  if (controller_level >= 2 && harvester.length >= 3 && builder.length < 2) {
+  if (controller_level >= 1 && repairer.length >= 2 && harvester.length >= 1 && builder.length < 1) {
     let newName = "Builder" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
-      memory: {
-        role: 'builder'
-      }
-    });
+    roleCreeps.createCreeps([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, 'builder');
   }
 
-  if (harvester.length >= 3 && upgrader.length >= 2 && builder.length >= 2 && transfer.length < 1) {
+  if (harvester.length >= 1 && repairer.length >= 2 && upgrader.length >= 1 && builder.length >= 1 && transfer.length < 1) {
     let newName = "Transfer" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
-      memory: {
-        role: 'transfer'
-      }
-    });
+    roleCreeps.createCreeps([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, 'transfer');
   }
 
-  if (harvester.length >= 3 && upgrader.length >= 2 && builder.length >= 2 && carrier.length < 1) {
+  if (harvester.length >= 1 && repairer.length >= 2 &&  upgrader.length >= 1 && builder.length >= 1 && carrier.length < 1) {
     let newName = "Carrier" + Game.time;
-    Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, {
-      memory: {
-        role: 'carrier'
-      }
-    });
+    roleCreeps.createCreeps([WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, 'carrier');
   }
 
   if (Game.spawns["Spawn1"].spawning) {
@@ -85,7 +67,8 @@ module.exports.loop = () => {
     const creep = Game.creeps[name];
     switch (creep.memory.role) {
       case "harvester":
-        roleHarvester.run(creep);
+        roleCreeps.onHarvest(creep, "5bbcab3f9099fc012e633296");
+        //roleCreeps.onHarvest(creep, "5bbcab3f9099fc012e633295");
         break;
       case "upgrader":
         roleUpgrader.run(creep);
@@ -97,7 +80,10 @@ module.exports.loop = () => {
         roleTransfer.run(creep);
         break;
       case "carrier":
-        roleCarrier.run(creep);
+        roleCreeps.handleCarrier(creep);
+        break;
+      case "repairer":
+        roleCreeps.handleRepair(creep)
         break;
       default:
         console.log("程序出错");

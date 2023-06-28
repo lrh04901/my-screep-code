@@ -1,3 +1,92 @@
 1.tower类实现
 2.人员重新分配，并使用CreepOperate类
 
+const showRoomInfo = require("InfoBoard")
+const roleHarvester = require("role.harvester");
+const roleUpgrader = require("role.upgrader");
+const roleBuilder = require("role.builder");
+const roleTransfer = require("role.transfer");
+const roleCarrier = require("role.carrier");
+const towerExtension = require("tower")
+const creepsExtension = require("CreepsOperate");
+
+
+module.exports.loop = () => {
+  showRoomInfo.showRoomInfo()
+  const roleTower = new towerExtension();
+  if (roleTower.towers.length > 0) {
+    roleTower.work();
+  }
+
+  const roleCreeps = new creepsExtension();
+
+  roleCreeps.deleteCreep(3);
+
+  let harvester = roleCreeps.filterCreepType("harvester");
+  let upgrader = roleCreeps.filterCreepType("upgrader");
+  let builder = roleCreeps.filterCreepType("builder");
+  let transfer = roleCreeps.filterCreepType("transfer");
+  let carrier = roleCreeps.filterCreepType("carrier");
+  let repairer = roleCreeps.filterCreepType("repairer");
+  let controller_level = Game.spawns["Spawn1"].room.controller.level
+
+  if (harvester.length < 2) {
+    let newName = "Harvester" + Game.time;
+    roleCreeps.createCreeps([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE], newName, 'harvester');
+  }
+
+  if (harvester.length >= 2 && upgrader.length < 2) {
+    let newName = "Upgrader" + Game.time;
+    roleCreeps.createCreeps([WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, 'upgrader');
+  }
+
+  if (controller_level >= 2 && harvester.length >= 3 && repairer.length < 2) {
+    let newName = "repairer" + Game.time;
+    roleCreeps.createCreeps([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, 'repairer');
+  }
+
+  if (harvester.length >= 2 && upgrader.length >= 2 && builder.length >= 2 && transfer.length < 1) {
+    let newName = "Transfer" + Game.time;
+    roleCreeps.createCreeps([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, 'transfer');
+  }
+
+  if (harvester.length >= 2 && upgrader.length >= 2 && builder.length >= 2 && carrier.length < 1) {
+    let newName = "Carrier" + Game.time;
+    roleCreeps.createCreeps([WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, 'carrier');
+  }
+
+  if (Game.spawns["Spawn1"].spawning) {
+    let spawningCreep = Game.creeps[Game.spawns["Spawn1"].spawning.name];
+    Game.spawns["Spawn1"].room.visual.text("建造中" + spawningCreep.memory.role, Game.spawns["Spawn1"].pos.x + 1, Game.spawns["Spawn1"].pos.y, {
+      align: "left",
+      opacity: 0.8
+    });
+  }
+
+  for (let name in Game.creeps) {
+    const creep = Game.creeps[name];
+    switch (creep.memory.role) {
+      case "harvester":
+        roleCreeps.onHarvest(creep, "5bbcab3f9099fc012e633296");
+        roleCreeps.onHarvest(creep, "5bbcab3f9099fc012e633295");
+        break;
+      case "upgrader":
+        roleUpgrader.run(creep);
+        break;
+      case "builder":
+        roleBuilder.run(creep);
+        break;
+      case "transfer":
+        roleTransfer.run(creep);
+        break;
+      case "carrier":
+        roleCreeps.handleCarrier(creep);
+        break;
+      case "repairer":
+        roleCreeps.handleRepair(creep);
+        break;
+      default:
+        console.log("程序出错");
+    }
+  }
+}
