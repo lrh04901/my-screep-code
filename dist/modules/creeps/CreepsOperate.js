@@ -187,6 +187,12 @@ class CreepsOperate extends util {
    * <=============================================repairer操作====================================================>
    */
 
+  /**
+   * 修复完成回调
+   * @param creep
+   * @param object
+   * @returns {Promise<unknown>}
+   */
   handleFixed(creep, object) {
     return new Promise((resolve) => {
       if (object.hits === object.hitsMax) {
@@ -196,6 +202,12 @@ class CreepsOperate extends util {
     })
   }
 
+  /**
+   * 修复建筑函数
+   * @param creep
+   * @param targets
+   * @returns {Promise<void>}
+   */
   async fixBuilding(creep, targets) {
     for (let obj in targets) {
       if (creep.repair(targets[obj]) === ERR_NOT_IN_RANGE) {
@@ -207,6 +219,10 @@ class CreepsOperate extends util {
     }
   }
 
+  /**
+   * repairer操作主函数
+   * @param creep
+   */
   handleRepair(creep) {
     console.log("start")
     if (creep.memory.repairing && creep.store[RESOURCE_ENERGY] === 0) {
