@@ -25,7 +25,7 @@ module.exports.loop = () => {
   let repairer = roleCreeps.filterCreepType("repairer");
   let controller_level = Game.spawns["Spawn1"].room.controller.level
 
-  if (harvester.length < 1) {
+  if (harvester.length < 2) {
     let newName = "Harvester" + Game.time;
     roleCreeps.createCreeps([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE], newName, 'harvester');
   }
@@ -67,8 +67,9 @@ module.exports.loop = () => {
     const creep = Game.creeps[name];
     switch (creep.memory.role) {
       case "harvester":
-        roleCreeps.onHarvest(creep, "5bbcab3f9099fc012e633296");
-        //roleCreeps.onHarvest(creep, "5bbcab3f9099fc012e633295");
+        console.log(harvester[0], harvester[1]);
+        roleCreeps.onHarvest(harvester[0], "5bbcab3f9099fc012e633296");
+        roleCreeps.onHarvest(harvester[1], "5bbcab3f9099fc012e633295");
         break;
       case "upgrader":
         roleUpgrader.run(creep);

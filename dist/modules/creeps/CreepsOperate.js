@@ -99,7 +99,6 @@ class CreepsOperate extends util {
     }
 
     creep.memory.targetId = target;
-    console.log(target)
     creep.moveTo(target);
     const range = target instanceof Source ? 1 : 0
     if (creep.pos.inRangeTo(target.pos, range)) {
@@ -132,9 +131,11 @@ class CreepsOperate extends util {
    * @param sourceId
    */
   onHarvest(creep, sourceId) {
-    console.log(this.beforeHarvest(creep, sourceId))
     if (this.beforeHarvest(creep, sourceId)) {
       creep.harvest(Game.getObjectById(sourceId));
+      if (creep.ticksToLive <= 3) {
+        creep.drop(RESOURCE_ENERGY);
+      }
     }
   }
 
@@ -213,8 +214,8 @@ class CreepsOperate extends util {
       if (creep.repair(targets[obj]) === ERR_NOT_IN_RANGE) {
         creep.say("修复建筑");
         creep.moveTo(targets[obj], {visualizePathStyle: {stroke: '#060952'}});
-        let res = await this.handleFixed(targets[obj]);
-        console.log(res)
+        let res = await this.handleFixed(creep, targets[obj]);
+        this.printInfo(res, "Building", '#9a9eff', false);
       }
     }
   }
@@ -224,7 +225,6 @@ class CreepsOperate extends util {
    * @param creep
    */
   handleRepair(creep) {
-    console.log("start")
     if (creep.memory.repairing && creep.store[RESOURCE_ENERGY] === 0) {
       creep.memory.repairing = false;
     }
@@ -233,7 +233,6 @@ class CreepsOperate extends util {
     }
 
     if (creep.memory.repairing) {
-      console.log("repair")
       if (this.room.energyAvailable === this.room.energyCapacityAvailable) {
         const targets = creep.room.find(FIND_STRUCTURES, {
           filter: structure => structure.hits < structure.hitsMax && (structure.structureType === STRUCTURE_ROAD || structure.structureType === STRUCTURE_CONTAINER)
@@ -259,13 +258,11 @@ class CreepsOperate extends util {
         }
       }
     } else {
-      console.log("getEnergy")
       const target = this.room.find(FIND_STRUCTURES, {
         filter: (s) => {
           return s.structureType === STRUCTURE_STORAGE
         }
       });
-      console.log(target);
       this.getEnergyFrom(creep, target[0]);
     }
   }

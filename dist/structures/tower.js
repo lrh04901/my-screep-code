@@ -18,7 +18,7 @@ class TowerExtension extends StructureTower {
       let defenseStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
         filter: (s) => s.hits < s.hitsMax && (s.structureType === STRUCTURE_WALL || s.structureType === STRUCTURE_RAMPART)
       });
-      if (tower.store[RESOURCE_ENERGY] > 300) {
+      if (tower.store[RESOURCE_ENERGY] > 0) {
         if (target !== null) {
           this.defenseRoom(tower, target)
         } else {
