@@ -1,7 +1,4 @@
 const showRoomInfo = require("InfoBoard")
-const roleUpgrader = require("role.upgrader");
-const roleBuilder = require("role.builder");
-const roleTransfer = require("role.transfer");
 const towerExtension = require("tower")
 const creepsExtension = require("CreepsOperate");
 
@@ -50,9 +47,9 @@ module.exports.loop = () => {
     roleCreeps.createCreeps([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, 'transfer');
   }
 
-  if (harvester.length >= 1 && repairer.length >= 2 &&  upgrader.length >= 1 && builder.length >= 1 && carrier.length < 1) {
+  if (harvester.length >= 1 && repairer.length >= 2 && carrier.length < 2) {
     let newName = "Carrier" + Game.time;
-    roleCreeps.createCreeps([WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], newName, 'carrier');
+    roleCreeps.createCreeps([WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, 'carrier');
   }
 
   if (Game.spawns["Spawn1"].spawning) {
@@ -67,18 +64,19 @@ module.exports.loop = () => {
     const creep = Game.creeps[name];
     switch (creep.memory.role) {
       case "harvester":
-        console.log(harvester[0], harvester[1]);
         roleCreeps.onHarvest(harvester[0], "5bbcab3f9099fc012e633296");
-        roleCreeps.onHarvest(harvester[1], "5bbcab3f9099fc012e633295");
+        if (harvester.length > 1) {
+          roleCreeps.onHarvest(harvester[1], "5bbcab3f9099fc012e633295");
+        }
         break;
       case "upgrader":
-        roleUpgrader.run(creep);
+        roleCreeps.handleUpgrader(creep);
         break;
       case "builder":
-        roleBuilder.run(creep);
+        roleCreeps.handlerBuilder(creep);
         break;
       case "transfer":
-        roleTransfer.run(creep);
+        roleCreeps.handleTransfer(creep);
         break;
       case "carrier":
         roleCreeps.handleCarrier(creep);

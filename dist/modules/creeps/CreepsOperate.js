@@ -4,7 +4,6 @@ class CreepsOperate extends util {
   constructor() {
     super();
     this.creeps = Game.creeps;
-    //this.sources = this.creeps.room.find(FIND_SOURCES);
     this.spawn = Game.spawns["Spawn1"];
   }
 
@@ -30,7 +29,7 @@ class CreepsOperate extends util {
    * 删除死亡的creep
    * @param {Number} interval 扫描间隔
    */
-  deleteCreep(interval=3) {
+  deleteCreep(interval = 3) {
     if (Game.time % 3) {
       return;
     }
@@ -66,7 +65,7 @@ class CreepsOperate extends util {
     }
 
     if (result === ERR_NOT_IN_RANGE) {
-      creep.moveTo(target.pos);
+      creep.moveTo(target.pos, {visualizePathStyle: {stroke: "#00ff81"}});
     }
   }
 
@@ -99,7 +98,7 @@ class CreepsOperate extends util {
     }
 
     creep.memory.targetId = target;
-    creep.moveTo(target);
+    creep.moveTo(target, {visualizePathStyle: {stroke: "#c941a3"}});
     const range = target instanceof Source ? 1 : 0
     if (creep.pos.inRangeTo(target.pos, range)) {
       if (creep.store[RESOURCE_ENERGY] <= 0) {
@@ -107,14 +106,13 @@ class CreepsOperate extends util {
       } else {
         if (range === 1) {
           this.room.createConstructionSite(target.pos, STRUCTURE_CONTAINER);
-          //this.beforeHarvest(creep, sourceId);
         }
         if (range === 0) {
           if (target === containers[0]) {
             if (target.hits < target.hitsMax) {
               creep.repair(target);
             }
-          } else if(target === constructionSite[0]) {
+          } else if (target === constructionSite[0]) {
             creep.build(target);
           }
         }
@@ -165,11 +163,18 @@ class CreepsOperate extends util {
 
       if (targets.length > 0 && targets[0].store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
         if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(targets[0], {visualizePathStyle: {stroke: "#fff"}});
+          creep.moveTo(targets[0], {visualizePathStyle: {stroke: "#ff0000"}});
           creep.say("补充建筑能量");
         }
       }
     } else {
+      const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES)
+      if (droppedEnergy.length > 0) {
+        let target = creep.pos.findClosestByPath(droppedEnergy);
+        creep.moveTo(target, {visualizePathStyle: {stroke: "#ff0099"}});
+        creep.pickup(target);
+        creep.say("从掉落能量中获取能量");
+      }
       let containers = creep.room.find(FIND_STRUCTURES, {
         filter: (structure) => {
           return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 0
@@ -240,6 +245,11 @@ class CreepsOperate extends util {
 
         if (targets.length > 0) {
           this.fixBuilding(creep, targets)
+        } else {
+          if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: "#cc2424"}});
+            creep.say("帮助升级")
+          }
         }
       } else {
         let target = creep.room.find(FIND_STRUCTURES, {
@@ -252,7 +262,7 @@ class CreepsOperate extends util {
         });
         if (target.length > 0) {
           if (creep.transfer(target[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(target[0], {visualizePathStyle: {stroke: "#fff"}});
+            creep.moveTo(target[0], {visualizePathStyle: {stroke: "#00ff81"}});
             creep.say("补充能量");
           }
         }
@@ -264,6 +274,130 @@ class CreepsOperate extends util {
         }
       });
       this.getEnergyFrom(creep, target[0]);
+    }
+  }
+
+  /**
+   * <=============================================upgrader操作====================================================>
+   */
+
+  /**
+   * Upgrader运行主函数
+   * @param creep
+   */
+  handleUpgrader(creep) {
+    if (creep.memory.upgrading && creep.store[RESOURCE_ENERGY] === 0) {
+      creep.memory.upgrading = false;
+    }
+    if (!creep.memory.upgrading && creep.store.getFreeCapacity() === 0) {
+      creep.memory.upgrading = true;
+      creep.say("升级")
+    }
+
+    if (creep.memory.upgrading) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: "#cc2424"}});
+      }
+    } else {
+      const storages = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_STORAGE
+        }
+      });
+      if (storages.length > 0 && storages[0].store[RESOURCE_ENERGY] > 500) {
+        this.getEnergyFrom(creep, storages[0]);
+        creep.say("从storage中获取能量");
+      }
+    }
+  }
+
+  /**
+   * <==============================================transfer操作=======================================================>
+   */
+
+  /**
+   * Transfer运行主函数
+   * @param creep
+   */
+  handleTransfer(creep) {
+    if (creep.memory.transferring && creep.store.getFreeCapacity() === 0) {
+      creep.memory.transferring = false;
+    }
+    if (!creep.memory.transferring && creep.store.getFreeCapacity() === creep.store.getCapacity()) {
+      creep.memory.transferring = true;
+    }
+
+    if (creep.memory.transferring) {
+      const storages = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_STORAGE
+        }
+      });
+      if (storages.length > 0 && storages[0].store[RESOURCE_ENERGY] > 500) {
+        this.getEnergyFrom(creep, storages[0])
+        creep.say("获取能量");
+      }
+    } else {
+      const targets = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_TOWER
+        }
+      });
+
+      if (targets.length > 0 && (targets[0].store.getFreeCapacity(RESOURCE_ENERGY) > 0 || targets[1].store.getFreeCapacity(RESOURCE_ENERGY) > 0)) {
+        if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE && targets[1].store[RESOURCE_ENERGY] > 500) {
+          creep.moveTo(targets[0], {visualizePathStyle: {stroke: "#fff"}});
+          creep.say("补充建筑能量");
+        } else {
+          if (creep.transfer(targets[1], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(targets[1], {visualizePathStyle: {stroke: "#fff"}});
+          }
+          creep.say("补充建筑能量");
+        }
+      }
+    }
+  }
+
+  /**
+   * <==============================================builder操作=======================================================>
+   */
+
+  /**
+   * builder执行主函数
+   * @param creep
+   */
+  handlerBuilder(creep) {
+    if (creep.memory.building && creep.store[RESOURCE_ENERGY] === 0) {
+      creep.memory.building = false;
+      creep.say('🔄 harvest');
+    }
+    if (!creep.memory.building && creep.store.getFreeCapacity() === 0) {
+      creep.memory.building = true;
+      creep.say('🚧 build');
+    }
+
+    if (creep.memory.building) {
+      const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+      if (targets.length) {
+        if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#fff'}});
+        }
+      } else {
+        if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: "#cc2424"}});
+          creep.say("帮助升级")
+        }
+      }
+    } else {
+      const storages = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_STORAGE
+        }
+      });
+      if (storages.length > 0 && storages[0].store[RESOURCE_ENERGY] > 500) {
+        this.getEnergyFrom(creep, storages[0])
+        creep.say("获取能量");
+      }
     }
   }
 }
